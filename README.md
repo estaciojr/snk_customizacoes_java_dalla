@@ -1,4 +1,4 @@
 #### Objetivo simples
 
-- Repositório para versionar as customizações que crio em Java para o ERP Sankhya
-- Seja um Botão de Ação ou Evento
+- RepositÃ³rio para versionar as customizaÃ§Ãµes que crio em Java para o ERP Sankhya
+- Seja um "BotÃ£o de AÃ§Ã£o" ou "Evento"
