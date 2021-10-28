@@ -93,49 +93,65 @@ public class ValidaOpcoesDeEntrega implements EventoProgramavelJava {
 		int codTipOper = cabVo.asInt("CODTIPOPER");
 		
 		if (codTipOper == 1001 || codTipOper == 1009 || codTipOper == 1100) {
+			
 			// Pegando campos de empresa estoque, destino e tipo de entrega
 			BigDecimal codEmpEst = iteVo.asBigDecimal("AD_CODEMPEST");
 			BigDecimal codEmpDest = iteVo.asBigDecimal("AD_CODEMPDEST");
 			String tipoEntrega = iteVo.asString("AD_ENTREGA");
 			
+			
 			BigDecimal codEmp = cabVo.asBigDecimal("CODEMP");
 			int codParc = cabVo.asInt("CODPARC");
+			
 			
 			// Se os campos forem nulos, considera o padrão
 			if (codEmpEst == null) {
 				codEmpEst = codEmp;
 			}
 			
+			
 			if (codEmpDest == null) {
 				codEmpDest = codEmp;
 			}
 			
+			
 			if (tipoEntrega == null) {
 				tipoEntrega = "C";
 			}
+			
 			
 			// Fazendo validações do tipo de entrega X - Cliente Retira em loja
 			if (tipoEntrega.equals("X") && codEmpDest.equals(new BigDecimal(4))) {
 				exibirErro("Tipo de entrega marcado como 'Cliente Retira em Loja', mas Empresa de Destino informada foi o CD");
 			}
 			
+			// Se parceiro for Consumidor Final e Opção de Entrega for diferente de caixa
+			if (codParc == 1000 && !tipoEntrega.equals("C")) {
+				exibirErro("Parceiro Consumidor final não pode ser usado com as opções de entrega 'Cliente Retira em Loja', 'Cliente Retira no CD', 'Entrega' e 'Abastecimento de Lojas'. Pode ser usado apenas como 'Caixa'.");
+			}
+			
+			
 			// Fazendo validações do tipo de entrega T - Abastecimento de Lojas
 			if (tipoEntrega.equals("T") && codParc >= 50) {
 				exibirErro("Tipo de entrega marcado como 'Abastecimento de Lojas', mas Parceiro do cabeçalho não é uma loja");
-			}
+			}	
+			
 			
 			// Fazendo validação da encomenda - apenas pode ser encomenda sendo LOJA-4-4-Retira CD ou Entrega
 			String marcacaoEncomenda = iteVo.asString("AD_ENCOMENDA");
 			
+			
 			if (marcacaoEncomenda == null) {
 				marcacaoEncomenda = "N";
 			}
+			
 			
 			if (marcacaoEncomenda.equals("S")) {
 				if (codEmpEst.compareTo(new BigDecimal(4)) != 0 || codEmpDest.compareTo(new BigDecimal(4)) != 0) {
 					this.exibirErro("Produtos vendidos como encomenda devem ter a 'Empresa do Estoque' e 'Empresa de Destino' preenchido com o CD (4)\n" +
 									"Código produto: " + iteVo.asBigDecimal("CODPROD"));
 				}
+				
 				
 				if (tipoEntrega.equals("C") || tipoEntrega.equals("X") || tipoEntrega.equals("T")) {
 					this.exibirErro("Produtos vendidos como encomenda devem ter o tipo de entrega sendo 'Retira no CD' ou 'Entrega'\n" +
