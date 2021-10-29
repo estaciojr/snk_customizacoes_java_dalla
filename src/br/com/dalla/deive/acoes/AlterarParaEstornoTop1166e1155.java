@@ -17,8 +17,8 @@ public class AlterarParaEstornoTop1166e1155 implements AcaoRotinaJava {
 	 */
 	
 	/* Problemas:
-	 * Caso tenha alguma alteração na TOP 1155 ou 1166
-	 * as alterações voltaram para uma criada no dia 2021-10-01 10:41:28.000
+	 * Caso tenha alguma alteração na TOP 1155, 1166, 1157 e 1153
+	 * as alterações voltarão para uma criada no dia 2021-10-01 10:41:28.000
 	 */
 	
 	/* 
@@ -36,12 +36,11 @@ public class AlterarParaEstornoTop1166e1155 implements AcaoRotinaJava {
 			dhalter desc;
 		
 		AD_PERMITEDEVOLUCAO deve estar = 'S'
-		CODTIPOPERDESTINO deve estar = 1218
+		CODTIPOPERDESTINO deve estar = 1218--1220
 	 */
 	
 	@Override
 	public void doAction(ContextoAcao contextoAcao) throws Exception {
-		
 		Registro registrosSelecionados[] = contextoAcao.getLinhas();
         
         if (registrosSelecionados.length != 1) {
