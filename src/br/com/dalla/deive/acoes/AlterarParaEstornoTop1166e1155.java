@@ -47,13 +47,13 @@ public class AlterarParaEstornoTop1166e1155 implements AcaoRotinaJava {
         if (registrosSelecionados.length != 1) {
             contextoAcao.mostraErro("Selecione apenas uma linha.");
         } else {
-        	boolean confirmaTrueFalse = contextoAcao.confirmarSimNao("Confirmação", "Deseja realmente modificar o cabeçalho desta nota para que seja possível fazer estorno na TOP 1218?\nNão será possível reverter as alterações.", 0);
+        	boolean confirmaTrueFalse = contextoAcao.confirmarSimNao("Confirmação", "1157 = 1220\n1153 = 1220\n1166 = 1218\n1155 = 1218\nDeseja realmente modificar o cabeçalho desta nota para que seja possível fazer estorno?\n", 0);
         	
         	if (confirmaTrueFalse) {
         		BigDecimal codTipOper = (BigDecimal) registrosSelecionados[0].getCampo("CODTIPOPER");
             	
-            	if (codTipOper.compareTo(BigDecimal.valueOf(1166)) != 0 && codTipOper.compareTo(BigDecimal.valueOf(1155)) != 0) {
-            		contextoAcao.mostraErro("Cabeçalho selecionado não é TOP 1166/1155");
+            	if (codTipOper.compareTo(BigDecimal.valueOf(1166)) != 0 && codTipOper.compareTo(BigDecimal.valueOf(1155)) != 0 && codTipOper.compareTo(BigDecimal.valueOf(1157)) != 0 && codTipOper.compareTo(BigDecimal.valueOf(1153)) != 0) {
+            		contextoAcao.mostraErro("Cabeçalho selecionado não é TOP 1166/1155/1157/1153");
             	} else {
             		for (Registro registroSelecionado : registrosSelecionados) {
             			Timestamp dhTipOper = Timestamp.valueOf("2021-10-01 10:41:28.000");
