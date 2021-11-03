@@ -10,15 +10,15 @@ import br.com.sankhya.extensions.actionbutton.Registro;
 public class AlterarParaEstornoTop1166e1155 implements AcaoRotinaJava {
 	
 	/* Autor: Deivisson - 19/10/2021
-	 * Bot„o de aÁ„o para funcionar apenas com a TOP 1166 e 1155
-	 * Apenas altera o campo DHTIPOPER no cabeÁalho da nota de saÌda
-	 * para que seja possÌvel utilizar a configuraÁ„o da TOP 1166 do dia '2021-10-01 10:41:28.000'
-	 * visto que nessa data de alteraÁ„o o configurado no campo CODTIPOPERDESTINO est· como a TOP de estorno 1218
+	 * Bot√£o de a√ß√£o para funcionar apenas com a TOP 1166 e 1155
+	 * Apenas altera o campo DHTIPOPER no cabe√ßalho da nota de sa√≠da
+	 * para que seja poss√≠vel utilizar a configura√ß√£o da TOP 1166 do dia '2021-10-01 10:41:28.000'
+	 * visto que nessa data de altera√ß√£o o configurado no campo CODTIPOPERDESTINO est√° como a TOP de estorno 1218
 	 */
 	
 	/* Problemas:
-	 * Caso tenha alguma alteraÁ„o na TOP 1155, 1166, 1157 e 1153
-	 * as alteraÁıes voltar„o para uma criada no dia 2021-10-01 10:41:28.000
+	 * Caso tenha alguma altera√ß√£o na TOP 1155, 1166, 1157, 1153 e 1156
+	 * as altera√ß√µes voltar√£o para uma criada no dia 2021-10-01 10:41:28.000
 	 */
 	
 	/* 
@@ -46,13 +46,13 @@ public class AlterarParaEstornoTop1166e1155 implements AcaoRotinaJava {
         if (registrosSelecionados.length != 1) {
             contextoAcao.mostraErro("Selecione apenas uma linha.");
         } else {
-        	boolean confirmaTrueFalse = contextoAcao.confirmarSimNao("ConfirmaÁ„o", "1157 = 1220\n1153 = 1220\n1166 = 1218\n1155 = 1218\nDeseja realmente modificar o cabeÁalho desta nota para que seja possÌvel fazer estorno?\n", 0);
+        	boolean confirmaTrueFalse = contextoAcao.confirmarSimNao("Confirma√ß√£o", "1157 = 1220\n1153 = 1220\n1166 = 1218\n1155 = 1218\nDeseja realmente modificar o cabe√ßalho desta nota para que seja poss√≠vel fazer estorno?\n", 0);
         	
         	if (confirmaTrueFalse) {
         		BigDecimal codTipOper = (BigDecimal) registrosSelecionados[0].getCampo("CODTIPOPER");
             	
-            	if (codTipOper.compareTo(BigDecimal.valueOf(1166)) != 0 && codTipOper.compareTo(BigDecimal.valueOf(1155)) != 0 && codTipOper.compareTo(BigDecimal.valueOf(1157)) != 0 && codTipOper.compareTo(BigDecimal.valueOf(1153)) != 0) {
-            		contextoAcao.mostraErro("CabeÁalho selecionado n„o È TOP 1166/1155/1157/1153");
+            	if (codTipOper.compareTo(BigDecimal.valueOf(1166)) != 0 && codTipOper.compareTo(BigDecimal.valueOf(1155)) != 0 && codTipOper.compareTo(BigDecimal.valueOf(1157)) != 0 && codTipOper.compareTo(BigDecimal.valueOf(1153)) != 0 && codTipOper.compareTo(BigDecimal.valueOf(1156)) != 0) {
+            		contextoAcao.mostraErro("Cabe√ßalho selecionado n√£o √© TOP 1166/1155/1157/1153/1156");
             	} else {
             		for (Registro registroSelecionado : registrosSelecionados) {
             			Timestamp dhTipOper = Timestamp.valueOf("2021-10-01 10:41:28.000");
