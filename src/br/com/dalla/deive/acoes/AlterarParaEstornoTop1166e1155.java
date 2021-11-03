@@ -17,8 +17,8 @@ public class AlterarParaEstornoTop1166e1155 implements AcaoRotinaJava {
 	 */
 	
 	/* Problemas:
-	 * Caso tenha alguma alterao na TOP 1155, 1166, 1157 e 1153
-	 * as alteraes voltaro para uma criada no dia 2021-10-01 10:41:28.000
+	 * Caso tenha alguma alteração na TOP 1155, 1166, 1157, 1153 e 1156
+	 * as alterações voltarão para uma criada no dia 2021-10-01 10:41:28.000
 	 */
 	
 	/* 
