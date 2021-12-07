@@ -1,8 +1,8 @@
 package br.com.dalla.deive.eventos;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Iterator;
-import java.math.BigDecimal;
 
 import br.com.sankhya.extensions.eventoprogramavel.EventoProgramavelJava;
 import br.com.sankhya.jape.bmp.PersistentLocalEntity;
@@ -10,8 +10,8 @@ import br.com.sankhya.jape.event.PersistenceEvent;
 import br.com.sankhya.jape.event.TransactionContext;
 import br.com.sankhya.jape.util.FinderWrapper;
 import br.com.sankhya.jape.vo.DynamicVO;
-import br.com.sankhya.modelcore.util.EntityFacadeFactory;
 import br.com.sankhya.modelcore.dwfdata.vo.ItemNotaVO;
+import br.com.sankhya.modelcore.util.EntityFacadeFactory;
 
 public class AtualizarCampoAdVlrUnitOrigExclusaoPreFaturamento implements EventoProgramavelJava {
 	
@@ -62,4 +62,5 @@ public class AtualizarCampoAdVlrUnitOrigExclusaoPreFaturamento implements Evento
 			}
 		}
 	}
+
 }
