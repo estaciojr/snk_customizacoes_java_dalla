@@ -35,7 +35,6 @@ public class BloqueiaCadastroInvalido implements EventoProgramavelJava {
 	private void bloqCadInv (PersistenceEvent event) throws Exception {
 		DynamicVO tgfparVo = (DynamicVO) event.getVo();
 		
-		
 //		String nomeParc = tgfparVo.asString("NOMEPARC");
 		BigDecimal CodBai = tgfparVo.asBigDecimal("CODBAI");
 		DynamicVO tgfbaiVo = getTgfbairroVo(CodBai);

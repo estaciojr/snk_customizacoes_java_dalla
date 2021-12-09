@@ -11,12 +11,12 @@ import br.com.sankhya.jape.wrapper.JapeFactory;
 import br.com.sankhya.jape.wrapper.JapeWrapper;
 import br.com.sankhya.modelcore.comercial.CentralFinanceiro;
 
-public class FinanceiroEcommerce implements EventoProgramavelJava {
+public class ApagaFinanceiroEcommerce implements EventoProgramavelJava {
 
 	public void beforeInsert(PersistenceEvent event) throws Exception { }
 
 	public void afterInsert(PersistenceEvent event) throws Exception {
-		this.tgffin(event);
+		this.apagarTitulo(event);
 	}
 
 	public void beforeUpdate(PersistenceEvent event) throws Exception { }
@@ -29,10 +29,11 @@ public class FinanceiroEcommerce implements EventoProgramavelJava {
 
 	public void beforeCommit(TransactionContext event) throws Exception { }
 
-	public void tgffin(PersistenceEvent event) throws Exception {
-		DynamicVO tituloAtual = (DynamicVO) event.getVo();
+	public void apagarTitulo(PersistenceEvent event) throws Exception {
+		DynamicVO tituloAtualVO = (DynamicVO) event.getVo();
 		
-		int nroUnicoAtual = tituloAtual.asInt("NUNOTA");
+		int nroUnicoFinanceiro = tituloAtualVO.asInt("NUFIN");
+		int nroUnicoAtual = tituloAtualVO.asInt("NUNOTA");
 		
 		DynamicVO pedidoAtualVO = this.getTgfcab(nroUnicoAtual);
 		DynamicVO tipOperVO = this.getTgftop(pedidoAtualVO.asInt("CODTIPOPER"), pedidoAtualVO.asTimestamp("DHTIPOPER"));
@@ -49,9 +50,15 @@ public class FinanceiroEcommerce implements EventoProgramavelJava {
 					int codEmpOrig = pedidoOrigemVO.asInt("CODEMP");
 					int codTipOperOrig = pedidoOrigemVO.asInt("CODTIPOPER");
 					String nuPedidoVtex = pedidoOrigemVO.asString("AD_PEDIDOECOM");
+					String ehCopiaTituloEcom = tituloAtualVO.asString("AD_COPIATITULOECOM");
 
-					if (codEmpOrig == 9 && codTipOperOrig == 1009 && nuPedidoVtex != null
-							&& nroUnicoAtual != nroUnicoOrigem && adNotaEcom.equals("S")) {
+					if (codEmpOrig == 9 
+							&& codTipOperOrig == 1009 
+							&& nuPedidoVtex != null
+							&& nroUnicoAtual != nroUnicoOrigem 
+							&& adNotaEcom.equals("S") 
+							&& (ehCopiaTituloEcom == null || ehCopiaTituloEcom.equals("N"))
+							) {
 						CentralFinanceiro centralFinanceiro = new CentralFinanceiro();
 						centralFinanceiro.excluiFinanceiro(BigDecimal.valueOf(nroUnicoAtual));
 						
@@ -60,7 +67,9 @@ public class FinanceiroEcommerce implements EventoProgramavelJava {
 								+ "nroUnicoOrigem = " + nroUnicoOrigem + "\n"
 								+ "codEmpOrig = " + codEmpOrig + "\n"
 								+ "codTipOperOrig = " + codTipOperOrig + "\n"
-								+ "nuPedidoVtex = " + nuPedidoVtex);
+								+ "nuPedidoVtex = " + nuPedidoVtex + "\n"
+								+ "ehCopiaTituloEcom = " + ehCopiaTituloEcom + "\n"
+								+ "nroUnicoFinanceiro = " + nroUnicoFinanceiro);
 					}
 				}
 			}
@@ -80,7 +89,7 @@ public class FinanceiroEcommerce implements EventoProgramavelJava {
 	}
 
 	public void mostrarNoConsole(String mensagem) {
-		System.out.println("====================== Mensagem ======================\n========== Exclui título de nota ecommerce ===========\n" + mensagem + "\n======================================================");
+		System.out.println("\n====================== Mensagem ======================\n========== Exclui título de nota ecommerce ===========\n" + mensagem + "\n======================================================");
 	}
 
 }
