@@ -52,11 +52,11 @@ public class ApagaFinanceiroEcommerce implements EventoProgramavelJava {
 					String nuPedidoVtex = pedidoOrigemVO.asString("AD_PEDIDOECOM");
 					String ehCopiaTituloEcom = tituloAtualVO.asString("AD_COPIATITULOECOM");
 
-					if (codEmpOrig == 9 
-							&& codTipOperOrig == 1009 
+					if (codEmpOrig == 9
+							&& codTipOperOrig == 1009
 							&& nuPedidoVtex != null
 							&& nroUnicoAtual != nroUnicoOrigem 
-							&& adNotaEcom.equals("S") 
+							&& adNotaEcom.equals("S")
 							&& (ehCopiaTituloEcom == null || ehCopiaTituloEcom.equals("N"))
 							) {
 						CentralFinanceiro centralFinanceiro = new CentralFinanceiro();

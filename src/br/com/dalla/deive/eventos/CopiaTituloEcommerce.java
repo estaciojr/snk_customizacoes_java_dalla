@@ -1,6 +1,7 @@
 package br.com.dalla.deive.eventos;
 
 import java.math.BigDecimal;
+import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Iterator;
@@ -8,8 +9,10 @@ import java.util.Iterator;
 import br.com.sankhya.extensions.eventoprogramavel.EventoProgramavelJava;
 import br.com.sankhya.jape.EntityFacade;
 import br.com.sankhya.jape.bmp.PersistentLocalEntity;
+import br.com.sankhya.jape.dao.JdbcWrapper;
 import br.com.sankhya.jape.event.PersistenceEvent;
 import br.com.sankhya.jape.event.TransactionContext;
+import br.com.sankhya.jape.sql.NativeSql;
 import br.com.sankhya.jape.util.FinderWrapper;
 import br.com.sankhya.jape.vo.DynamicVO;
 import br.com.sankhya.jape.vo.EntityVO;
@@ -93,8 +96,9 @@ public class CopiaTituloEcommerce implements EventoProgramavelJava {
 		Collection<?> itensDoPedido = EntityFacadeFactory.getDWFFacade().findByDynamicFinder(new FinderWrapper(DynamicEntityNames.FINANCEIRO, "this.NUNOTA = ?", new Object[] { nroUnicoPedOrigem }));		
 		Iterator<?> iteratorDosItens = itensDoPedido.iterator();
 		
+		EntityFacade dwfFacade = EntityFacadeFactory.getDWFFacade();
+		
 		while (iteratorDosItens.hasNext()) {
-			EntityFacade dwfFacade = EntityFacadeFactory.getDWFFacade();
 			EntityVO tituloEntityVO = dwfFacade.getDefaultValueObjectInstance(DynamicEntityNames.FINANCEIRO);
 			DynamicVO novoTituloDynamicVO = (DynamicVO) tituloEntityVO;
 			
@@ -103,7 +107,7 @@ public class CopiaTituloEcommerce implements EventoProgramavelJava {
 			
 			novoTituloDynamicVO = tituloOrigemVO.buildClone();
 			
-			novoTituloDynamicVO.setProperty("NUFIN", /*this.getUltimoNufin()*/null);
+			novoTituloDynamicVO.setProperty("NUFIN", this.getUltimoNuFin());
 			novoTituloDynamicVO.setProperty("AD_COPIATITULOECOM", "S");
 			novoTituloDynamicVO.setProperty("NUNOTA", BigDecimal.valueOf(nroUnicoAtual));
 			
@@ -111,9 +115,13 @@ public class CopiaTituloEcommerce implements EventoProgramavelJava {
 					+ "nunota = " + novoTituloDynamicVO.getProperty("NUNOTA") + "\n"
 					+ "codTipTit = " + novoTituloDynamicVO.asBigDecimal("CODTIPTIT") + "\n"
 					+ "vlrDesdob = " + novoTituloDynamicVO.asBigDecimal("VLRDESDOB") + "\n"
-					+ "dtVenc = " + novoTituloDynamicVO.getProperty("DTVENC"));
+					+ "dtVenc = " + novoTituloDynamicVO.getProperty("DTVENC") + "\n"
+					+ "copiaTituloEcom = " + novoTituloDynamicVO.asString("AD_COPIATITULOECOM"));
 			
-			dwfFacade.createEntity(DynamicEntityNames.FINANCEIRO, (EntityVO) novoTituloDynamicVO);
+			tituloLocalEntity.setValueObject((EntityVO) novoTituloDynamicVO);
+			
+//			dwfFacade.createEntity(DynamicEntityNames.FINANCEIRO, (EntityVO) novoTituloDynamicVO);
+//			dwfFacade.saveEntity(DynamicEntityNames.FINANCEIRO, (EntityVO) novoTituloDynamicVO);
 			
 			System.out.println("NUFIN ===== " + novoTituloDynamicVO.asBigDecimal("NUFIN"));
 		}
@@ -122,5 +130,23 @@ public class CopiaTituloEcommerce implements EventoProgramavelJava {
 	public void mostrarNoConsole(String mensagem) {
 		System.out.println("\n====================== Mensagem ======================\n========== Copia título ecommerce ===========\n" + mensagem + "\n======================================================");
 	}
+	
+	private BigDecimal getUltimoNuFin() throws Exception {
+        BigDecimal nuFin = new java.math.BigDecimal(0);
 
+        JdbcWrapper jdbcV = null;
+        EntityFacade dwfFacadeV = EntityFacadeFactory.getDWFFacade();
+        jdbcV = dwfFacadeV.getJdbcWrapper();
+
+        NativeSql sql = new NativeSql(jdbcV);
+        sql.resetSqlBuf();
+        sql.appendSql("SELECT MAX(NUFIN) + 1 AS NUFIN FROM TGFFIN");
+        ResultSet query = sql.executeQuery();
+        while (query.next()) {
+            nuFin = query.getBigDecimal("NUFIN");
+        }
+        
+        return nuFin;
+	}
+	
 }
