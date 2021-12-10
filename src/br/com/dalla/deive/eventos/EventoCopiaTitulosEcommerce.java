@@ -130,7 +130,7 @@ public class EventoCopiaTitulosEcommerce implements EventoProgramavelJava {
 					+ "nuFinNovo = " + novoFin.asBigDecimal("NUFIN"));
 		}
 	}
-
+	
 	public void mostrarNoConsole(String mensagem) {
 		System.out.println("\n====================== Mensagem ======================\n========== Copia título ecommerce ===========\n" + mensagem + "\n======================================================");
 	}
