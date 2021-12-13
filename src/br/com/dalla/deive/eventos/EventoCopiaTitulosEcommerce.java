@@ -31,7 +31,9 @@ public class EventoCopiaTitulosEcommerce implements EventoProgramavelJava {
 
 	public void beforeUpdate(PersistenceEvent event) throws Exception { }
 
-	public void afterUpdate(PersistenceEvent event) throws Exception { }
+	public void afterUpdate(PersistenceEvent event) throws Exception {
+		this.inicio(event);
+	}
 
 	public void beforeDelete(PersistenceEvent event) throws Exception { }
 
@@ -40,40 +42,44 @@ public class EventoCopiaTitulosEcommerce implements EventoProgramavelJava {
 	public void beforeCommit(TransactionContext transactionContext) throws Exception { }
 	
 	public void inicio(PersistenceEvent event) throws Exception {
-		DynamicVO pedidoAtualVO = (DynamicVO) event.getVo();
-		
-		int nroUnicoAtual = pedidoAtualVO.asInt("NUNOTA");
-		int nroUnicoOrigem = pedidoAtualVO.asInt("AD_NUNOTAORIG");
-		
-		DynamicVO tipOperAtualVO = this.getTgftop(pedidoAtualVO.asInt("CODTIPOPER"), pedidoAtualVO.asTimestamp("DHTIPOPER"));
-		
-		if (tipOperAtualVO != null) {
-			String adNotaEcom = tipOperAtualVO.asString("AD_NOTAECOM") == null ? "N" : tipOperAtualVO.asString("AD_NOTAECOM");
+//		ModifingFields modifingFields = event.getModifingFields();
+//		
+//		if (modifingFields.isModifing("STATUSNOTA")) {
+			DynamicVO pedidoAtualVO = (DynamicVO) event.getVo();
+
+			int nroUnicoAtual = pedidoAtualVO.asInt("NUNOTA");
+			int nroUnicoOrigem = pedidoAtualVO.asInt("AD_NUNOTAORIG");
 			
-			if (adNotaEcom.equals("S")) {
-				DynamicVO pedidoOrigemVO = this.getTgfcab(new BigDecimal(nroUnicoOrigem));
+			DynamicVO tipOperAtualVO = this.getTgftop(pedidoAtualVO.asInt("CODTIPOPER"), pedidoAtualVO.asTimestamp("DHTIPOPER"));
+			
+			if (tipOperAtualVO != null) {
+				String adNotaEcom = tipOperAtualVO.asString("AD_NOTAECOM") == null ? "N" : tipOperAtualVO.asString("AD_NOTAECOM");
 				
-				if (pedidoOrigemVO != null) {
-					int codEmpOrigem = pedidoOrigemVO.asInt("CODEMP");
-					int codTipOperOrigem = pedidoOrigemVO.asInt("CODTIPOPER");
-					String nuPedidoVtex = pedidoOrigemVO.asString("AD_PEDIDOECOM");
-
-					if (codEmpOrigem == 9
-							&& codTipOperOrigem == 1009
-							&& nuPedidoVtex != null
-							&& nroUnicoAtual != nroUnicoOrigem) {
-						this.copiaTitulos(nroUnicoOrigem, pedidoAtualVO);
-
-//						this.mostrarNoConsole("nroUnicoAtual = " + nroUnicoAtual + "\n"
-//								+ "nroUnicoOrigem = " + nroUnicoOrigem + "\n"
-//								+ "adNotaEcom = " + adNotaEcom + "\n"
-//								+ "codEmpOrigem = " + codEmpOrigem + "\n"
-//								+ "codTipOperOrigem = " + codTipOperOrigem + "\n"
-//								+ "nuPedidoVtex = " + nuPedidoVtex);
+				if (adNotaEcom.equals("S")) {
+					DynamicVO pedidoOrigemVO = this.getTgfcab(new BigDecimal(nroUnicoOrigem));
+					
+					if (pedidoOrigemVO != null) {
+						int codEmpOrigem = pedidoOrigemVO.asInt("CODEMP");
+						int codTipOperOrigem = pedidoOrigemVO.asInt("CODTIPOPER");
+						String nuPedidoVtex = pedidoOrigemVO.asString("AD_PEDIDOECOM");
+		
+						if (codEmpOrigem == 9
+								&& codTipOperOrigem == 1009
+								&& nuPedidoVtex != null
+								&& nroUnicoAtual != nroUnicoOrigem) {
+							this.copiaTitulos(nroUnicoOrigem, pedidoAtualVO);
+		
+							this.mostrarNoConsole("nroUnicoAtual = " + nroUnicoAtual + "\n"
+									+ "nroUnicoOrigem = " + nroUnicoOrigem + "\n"
+									+ "adNotaEcom = " + adNotaEcom + "\n"
+									+ "codEmpOrigem = " + codEmpOrigem + "\n"
+									+ "codTipOperOrigem = " + codTipOperOrigem + "\n"
+									+ "nuPedidoVtex = " + nuPedidoVtex);
+						}
 					}
 				}
 			}
-		}
+//		}
 	}
 	
 	public DynamicVO getTgfcab(BigDecimal nuNota) throws Exception {
