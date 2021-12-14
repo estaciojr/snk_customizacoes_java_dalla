@@ -1,6 +1,8 @@
 package br.com.dalla.deive.util;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Main {
 	public static void main(String[] args) {
@@ -17,5 +19,9 @@ public class Main {
 		} else {
 			System.out.println("Não pode contratar!");
 		}
+		
+		ArrayList<Integer> empresas = new ArrayList<>(Arrays.asList(1, 2, 3, 4));
+		System.out.println(empresas.contains(2));
+		
 	}
 }

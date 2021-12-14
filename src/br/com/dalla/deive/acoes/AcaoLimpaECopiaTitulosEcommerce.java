@@ -37,13 +37,13 @@ public class AcaoLimpaECopiaTitulosEcommerce implements AcaoRotinaJava {
 						+ "Financeiro não pode ser refeito."
 					);
 				} else {
-					this.iniciarLimpezaECopia(registroSelecionado);
+					this.iniciarLimpezaECopia(registroSelecionado, contextoAcao);
 				}
         	}
 		}
 	}
 	
-	public void iniciarLimpezaECopia(Registro registroSelecionado) throws Exception {
+	public void iniciarLimpezaECopia(Registro registroSelecionado, ContextoAcao contextoAcao) throws Exception {
 		DynamicVO pedidoAtualVO = (DynamicVO) this.getCabDynamicVO((BigDecimal) registroSelecionado.getCampo("NUNOTA"));
 		
 		DynamicVO tipOperAtualVO = ComercialUtils.getTipoOperacao(pedidoAtualVO.asBigDecimal("CODTIPOPER"));
@@ -58,6 +58,10 @@ public class AcaoLimpaECopiaTitulosEcommerce implements AcaoRotinaJava {
 					int codEmpOrigem = pedidoOrigemVO.asInt("CODEMP");
 					int codTipOperOrigem = pedidoOrigemVO.asInt("CODTIPOPER");
 					String nuPedidoVtex = pedidoOrigemVO.asString("AD_PEDIDOECOM");
+					
+					if (nuPedidoVtex == null) {
+						contextoAcao.mostraErro("Pedido origem não veio da VTEX.");
+					}
 
 					if (
 						codEmpOrigem == 9
