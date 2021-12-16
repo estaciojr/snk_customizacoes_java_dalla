@@ -23,6 +23,10 @@ import br.com.sankhya.modelcore.comercial.ComercialUtils;
 import br.com.sankhya.modelcore.dwfdata.vo.tgf.FinanceiroVO;
 import br.com.sankhya.modelcore.util.EntityFacadeFactory;
 
+/* Criado para copiar os títulos que estão no pedido 1009
+ * para a nota com TOP 1108
+ */
+
 public class EventoLimpaECopiaFinanceiroEcommerce implements EventoProgramavelJava {
 
 	public void beforeInsert(PersistenceEvent event) throws Exception { }
