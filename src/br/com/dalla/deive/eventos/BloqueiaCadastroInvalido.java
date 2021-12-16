@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 public class BloqueiaCadastroInvalido implements EventoProgramavelJava {
 	
 	public void beforeInsert(PersistenceEvent persistenceEvent) throws Exception {
-		this.bloqCadInv(persistenceEvent);
+		this.bloqueiaCadastroInvalido(persistenceEvent);
 	}
 	
 	public void afterInsert(PersistenceEvent persistenceEvent) throws Exception { }
@@ -27,27 +27,41 @@ public class BloqueiaCadastroInvalido implements EventoProgramavelJava {
 	public void afterDelete(PersistenceEvent persistenceEvent) throws Exception { }
 
 	public void beforeCommit(TransactionContext persistenceEvent) throws Exception { }
+
+	private void bloqueiaCadastroInvalido(PersistenceEvent event) throws Exception {
+		DynamicVO tgfparVO = (DynamicVO) event.getVo();
+		
+		BigDecimal codigoBairro = tgfparVO.asBigDecimal("CODBAI");
+		DynamicVO tgfbaiVO = getTgfbairroVO(codigoBairro);
+		String nomeBairro = tgfbaiVO.asString("NOMEBAI");
+		
+		char ultimoCharacter = this.getUltimoCharacter(nomeBairro);
+		
+		if (this.characterEhEspaco(ultimoCharacter)) {
+			
+		}
+		
+		this.exibirErro("" + nomeBairro);
+	}
+	
+	private DynamicVO getTgfbairroVO(BigDecimal codigoBairro) throws Exception {
+		JapeWrapper DAO = JapeFactory.dao("Bairro");
+		DynamicVO Vo = DAO.findOne("CODBAI = ?", new Object[] { codigoBairro });
+		return Vo;	
+	}
 	
 	private void exibirErro(String mensagem) throws Exception  {
 		throw new PersistenceException("<p align=\"center\"><img src=\"https://dallabernardina.vteximg.com.br/arquivos/logo_header.png\"></img></p><br/><br/><br/><br/><br/><br/>\n\n\n\n<font size=\"12\" color=\"#BF2C2C\"><b> " + mensagem + "</b></font>\n\n\n");
 	}
 	
-	private void bloqCadInv (PersistenceEvent event) throws Exception {
-		DynamicVO tgfparVo = (DynamicVO) event.getVo();
-		
-//		String nomeParc = tgfparVo.asString("NOMEPARC");
-		BigDecimal CodBai = tgfparVo.asBigDecimal("CODBAI");
-		DynamicVO tgfbaiVo = getTgfbairroVo(CodBai);
-		String nomeBai = tgfbaiVo.asString("NOMEBAI");
-	//	this.exibirErro(nomeParc);
-		this.exibirErro("" + nomeBai);
+	public char getUltimoCharacter(String nomeBairro) {
+		char[] characterArray = nomeBairro.toCharArray();
+		int ultimaPosicao = characterArray.length - 1;
+		return characterArray[ultimaPosicao];
 	}
 	
-	private DynamicVO getTgfbairroVo(BigDecimal codbai) throws Exception {
-		JapeWrapper DAO = JapeFactory.dao("Bairro");
-		DynamicVO Vo = DAO.findOne("CODBAI = ?", new Object[] { codbai });
-		return Vo;
-		
+	public boolean characterEhEspaco(char character) {
+		return character == ' ';
 	}
 	
 }

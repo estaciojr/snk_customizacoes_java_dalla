@@ -5,7 +5,8 @@ import br.com.sankhya.jape.event.PersistenceEvent;
 import br.com.sankhya.jape.event.TransactionContext;
 import br.com.sankhya.jape.vo.DynamicVO;
 
-/* Criado para mostrar no console quando referida ação é executada na TGFCAB */
+/* Criado para mostrar no console quando referida ação é executada na TGFCAB
+ * */
 
 public class ReferenciaExecucaoDosEventosTgfcab implements EventoProgramavelJava {
 
@@ -45,7 +46,7 @@ public class ReferenciaExecucaoDosEventosTgfcab implements EventoProgramavelJava
 		System.out.println(
 			"TGFCAB " +
 			"Nro. Único: " + ((DynamicVO) event.getVo()).asBigDecimalOrZero("NUNOTA") +
-			"Tipo Operação: " + ((DynamicVO) event.getVo()).asBigDecimalOrZero("CODTIPOPER")
+			" - Tipo Operação: " + ((DynamicVO) event.getVo()).asBigDecimalOrZero("CODTIPOPER")
 		);
 	}
 	
