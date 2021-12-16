@@ -30,8 +30,6 @@ public class EventoMarcarNaoPendenteProdutoEcommerce implements EventoProgramave
 			DynamicVO tgfcabDyVOOrigem = this.getCabDynamicVO(nuNotaOrigem);
 			
 			if (tgfcabDyVOOrigem != null) {
-				System.out.println("NUNOTA = " + tgfcabDyVOOrigem.asBigDecimal("NUNOTA") + " - CODTIPOPER = " + tgfcabDyVOOrigem.asBigDecimal("CODTIPOPER"));
-				
 				int codTipOperCab = tgfcabAtualDyVO.asInt("CODTIPOPER");
 				int codTipOperCabOrigem = tgfcabDyVOOrigem.asInt("CODTIPOPER");
 				
@@ -44,6 +42,12 @@ public class EventoMarcarNaoPendenteProdutoEcommerce implements EventoProgramave
 						ItemNotaVO itemNotaVO = (ItemNotaVO) ((DynamicVO) itensProEntity.getValueObject()).wrapInterface(ItemNotaVO.class);
 						itemNotaVO.setProperty("PENDENTE", "N");
 						itensProEntity.setValueObject(itemNotaVO);
+						
+						this.mostrarNoConsole(
+							"NUNOTA = " + itemNotaVO.asBigDecimal("NUNOTA") + "\n"
+							+ "CODPROD = " + itemNotaVO.asBigDecimal("CODPROD") + "\n"
+							+ "SEQUENCIA = " + itemNotaVO.asBigDecimal("SEQUENCIA")
+						);
 					}
 				}
 			}
@@ -68,8 +72,13 @@ public class EventoMarcarNaoPendenteProdutoEcommerce implements EventoProgramave
 		return Vo;
 	}
 	
-	public void marcarComoNaoPendente(	) {
-		
+	public void mostrarNoConsole(String mensagem) {
+		System.out.println(
+			"====================== Mensagem ======================\n"
+			+ "======= EventoMarcarNaoPendenteProdutoEcommerce ======\n"
+			+ mensagem + "\n"
+			+ "======================================================"
+		);
 	}
 	
 }
