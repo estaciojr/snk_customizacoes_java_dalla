@@ -10,10 +10,10 @@ import br.com.sankhya.jape.vo.DynamicVO;
 
 import java.math.BigDecimal;
 
-public class BloqueiaCadastroInvalido implements EventoProgramavelJava {
+public class EventoBloqueiaCadastroInvalidoDeParceiro implements EventoProgramavelJava {
 	
 	public void beforeInsert(PersistenceEvent persistenceEvent) throws Exception {
-		this.bloqueiaCadastroInvalido(persistenceEvent);
+		//this.bloqueiaCadastroInvalido(persistenceEvent);
 	}
 	
 	public void afterInsert(PersistenceEvent persistenceEvent) throws Exception { }
@@ -25,23 +25,25 @@ public class BloqueiaCadastroInvalido implements EventoProgramavelJava {
 	public void beforeDelete(PersistenceEvent persistenceEvent) throws Exception { }
 	
 	public void afterDelete(PersistenceEvent persistenceEvent) throws Exception { }
-
+	
 	public void beforeCommit(TransactionContext persistenceEvent) throws Exception { }
-
+	
+	public void inicio() {
+		
+	}
+	
 	private void bloqueiaCadastroInvalido(PersistenceEvent event) throws Exception {
 		DynamicVO tgfparVO = (DynamicVO) event.getVo();
 		
-		BigDecimal codigoBairro = tgfparVO.asBigDecimal("CODBAI");
-		DynamicVO tgfbaiVO = getTgfbairroVO(codigoBairro);
-		String nomeBairro = tgfbaiVO.asString("NOMEBAI");
+		BigDecimal codigoBairro = tgfparVO.asBigDecimalOrZero("CODBAI");
+		DynamicVO tgfbaiDyVO = getTgfbairroVO(codigoBairro);
+		String nomeBairro = tgfbaiDyVO.asString("NOMEBAI");
 		
 		char ultimoCharacter = this.getUltimoCharacter(nomeBairro);
 		
 		if (this.characterEhEspaco(ultimoCharacter)) {
-			
+			this.exibirErro("Bairro com nome inválido. Identificado espaço como último caractere. Nota não será aprovada." + nomeBairro);
 		}
-		
-		this.exibirErro("" + nomeBairro);
 	}
 	
 	private DynamicVO getTgfbairroVO(BigDecimal codigoBairro) throws Exception {
