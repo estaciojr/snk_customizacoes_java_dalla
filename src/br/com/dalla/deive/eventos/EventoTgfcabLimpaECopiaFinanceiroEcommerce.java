@@ -31,21 +31,13 @@ public class EventoTgfcabLimpaECopiaFinanceiroEcommerce implements Regra {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void afterDelete(ContextoRegra contextoRegra) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
+	public void afterDelete(ContextoRegra contextoRegra) throws Exception { }
 
 	@Override
-	public void afterInsert(ContextoRegra contextoRegra) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
+	public void afterInsert(ContextoRegra contextoRegra) throws Exception { }
 
 	@Override
 	public void afterUpdate(ContextoRegra contextoRegra) throws Exception {
-		// TODO Auto-generated method stub
-
 		PrePersistEntityState prePersistEntityState = contextoRegra.getPrePersistEntityState();
 		
 		if (prePersistEntityState.getDao().getEntityName() != null && prePersistEntityState.getDao().getEntityName().equals("CabecalhoNota")) {
@@ -53,38 +45,19 @@ public class EventoTgfcabLimpaECopiaFinanceiroEcommerce implements Regra {
 			DynamicVO oldCabVO = (DynamicVO) prePersistEntityState.getOldVO();
 			
 			if (!oldCabVO.asString("STATUSNOTA").equals("L") && newCabVO.asString("STATUSNOTA").equals("L")) {
-				System.out.println("OldVO " + oldCabVO.asString("STATUSNFE") + " - " + oldCabVO.asBigDecimal("NUNOTA") + " - " + oldCabVO.asBigDecimal("CODTIPOPER"));
-				System.out.println("NewVO " + newCabVO.asString("STATUSNFE") + " - " + newCabVO.asBigDecimal("NUNOTA") + " - " + newCabVO.asBigDecimal("CODTIPOPER"));
-				
-				String statusNfeOld = oldCabVO.asString("STATUSNFE") == null ? "N" : oldCabVO.asString("STATUSNFE");
-				String statusNfeNew = newCabVO.asString("STATUSNFE") == null ? "N" : newCabVO.asString("STATUSNFE");
-				
-				System.out.println("MODREGCENTRAL = " + statusNfeOld);
-				System.out.println("MODREGCENTRAL = " + statusNfeNew);
-				
-				System.out.println("############### De ENVIADA/AGUARDANDO CORREÇÃO para APROVADA! #################");
 				this.iniciarLimpezaECopia(newCabVO);
 			}
 		}
 	}
 
 	@Override
-	public void beforeDelete(ContextoRegra contextoRegra) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
+	public void beforeDelete(ContextoRegra contextoRegra) throws Exception { }
 
 	@Override
-	public void beforeInsert(ContextoRegra contextoRegra) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
+	public void beforeInsert(ContextoRegra contextoRegra) throws Exception { }
 
 	@Override
-	public void beforeUpdate(ContextoRegra contextoRegra) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
+	public void beforeUpdate(ContextoRegra contextoRegra) throws Exception { }
 	
 	public void iniciarLimpezaECopia(DynamicVO event) throws Exception {
 		DynamicVO pedidoAtualVO = event;
