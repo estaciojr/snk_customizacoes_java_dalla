@@ -188,4 +188,10 @@ public class EventoTgfcabLimpaECopiaFinanceiroEcommerce implements Regra {
 		throw new PersistenceException("<p align=\"center\"><img src=\"https://dallabernardina.vteximg.com.br/arquivos/logo_header.png\"></img></p><br/><br/><br/><br/><br/><br/>\n\n\n\n<font size=\"12\" color=\"#BF2C2C\"><b> " + mensagem + "</b></font>\n\n\n");
 	}
 	
+	public DynamicVO getTgfcab(BigDecimal nuNota) throws Exception {
+		JapeWrapper DAO = JapeFactory.dao("CabecalhoNota");
+		DynamicVO Vo = DAO.findOne("NUNOTA = ?", new Object[] { nuNota });
+		return Vo;
+	}
+	
 }
