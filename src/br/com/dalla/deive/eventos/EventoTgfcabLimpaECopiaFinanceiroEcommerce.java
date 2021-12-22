@@ -132,26 +132,14 @@ public class EventoTgfcabLimpaECopiaFinanceiroEcommerce implements Regra {
 			novoFinanceiroFluidVO.set("PROVISAO", provisao);
             DynamicVO novoFin = novoFinanceiroFluidVO.save();
 			
-			this.mostrarNoConsole(
-				"Copiando o título com os seguintes dados:\n"
-				+ "nufinOrigem = " + tituloOrigemVO.getProperty("NUFIN") + "\n"
-				+ "nunotaOrigem = " + tituloOrigemVO.getProperty("NUNOTA") + "\n"
-				+ "codTipTitOrigem = " + tituloOrigemVO.asBigDecimal("CODTIPTIT") + "\n"
-				+ "vlrDesdobOrigem = " + tituloOrigemVO.asBigDecimal("VLRDESDOB") + "\n"
-				+ "dtVencOrigem = " + tituloOrigemVO.getProperty("DTVENC") + "\n"
-				+ "nuFinNovo = " + novoFin.asBigDecimal("NUFIN") + "\n"
-				+ "nunotaNovo = " + pedidoAtualVO.asBigDecimal("NUNOTA")
-			);
+            System.out.println(
+        		"EventoTgfcabLimpaECopiaFinanceiroEcommerce. "
+        		+ "Copiando o título com os seguintes dados: Nro Único Financeiro Origem=" + tituloOrigemVO.getProperty("NUFIN")
+        		+ ". Nro Único Origem=" + tituloOrigemVO.getProperty("NUNOTA")
+        		+ ". Nro Único Financeiro Novo=" + novoFin.asBigDecimal("NUFIN")
+        		+ ". Nro Único Novo=" + pedidoAtualVO.asBigDecimal("NUNOTA")
+        	);
 		}
-	}
-	
-	public void mostrarNoConsole(String mensagem) {
-		System.out.println(
-			"====================== Mensagem ======================\n"
-			+ "=========== AcaoLimpaECopiaTitulosEcommerce ==========\n"
-			+ mensagem + "\n"
-			+ "======================================================"
-		);
 	}
 	
 	public void apagarTitulos(DynamicVO pedidoAtualVO) throws Exception {
@@ -160,13 +148,10 @@ public class EventoTgfcabLimpaECopiaFinanceiroEcommerce implements Regra {
 		CentralFinanceiro centralFinanceiro = new CentralFinanceiro();
 		centralFinanceiro.excluiFinanceiro(pedidoAtualVO.asBigDecimal("NUNOTA"));
 		
-		this.mostrarNoConsole(
-			"Apagando todos os títulos do nro único "
-			+ "nroUnicoAtual = " + pedidoAtualVO.asBigDecimal("NUNOTA") + "\n"
-			+ "codTipOper = " + pedidoAtualVO.asBigDecimal("CODTIPOPER") + "\n"
-			+ "dtNeg = " + pedidoAtualVO.asTimestamp("DTNEG") + "\n"
-			+ "dtAlter = " + pedidoAtualVO.asTimestamp("DTALTER")
-		);
+		System.out.println(
+    		"EventoTgfcabLimpaECopiaFinanceiroEcommerce. "
+    		+ "Apagando todos os títulos do Nro Único=" + pedidoAtualVO.asBigDecimal("NUNOTA")
+    	);
 	}
 	
 	public void setupContext() {
