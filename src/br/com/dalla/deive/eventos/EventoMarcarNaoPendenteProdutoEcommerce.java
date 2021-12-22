@@ -15,26 +15,32 @@ import br.com.sankhya.jape.wrapper.JapeWrapper;
 import br.com.sankhya.modelcore.dwfdata.vo.ItemNotaVO;
 import br.com.sankhya.modelcore.util.EntityFacadeFactory;
 
-/* Criado para marcar como não pendente o produto na TOP 1009
- * antes de inserir na TOP 1079 e "liberar" o estoque
+/* Quando há apenas 1 unidade do produto no estoque, esta unidade é reservada
+ * no pedido 1009, quando o movimento automático tenta gerar a top 1079
+ * é apresentado erro informando que não há estoque suficiente do produto.
+ * 
+ * Esse evento faz com que antes de inserir o produto na TGFITE, o mesmo é marcado como
+ * não pendente no pedido origem.
+ * 
+ * Fazendo com que a reserva saia e seja possível inserí-lo no pedido de separação.
  */
 
 public class EventoMarcarNaoPendenteProdutoEcommerce implements EventoProgramavelJava {
 
 	public void beforeInsert(PersistenceEvent event) throws Exception {
-		DynamicVO tgfcabAtualDyVO = (DynamicVO) event.getVo();
+		DynamicVO tgfiteAtualDyVO = (DynamicVO) event.getVo();
 		
-		BigDecimal nuNotaOrigem = tgfcabAtualDyVO.asBigDecimalOrZero("AD_NUNOTAORIG");
+		BigDecimal nuNotaOrigem = tgfiteAtualDyVO.asBigDecimalOrZero("AD_NUNOTAORIG");
 		
 		if (nuNotaOrigem.compareTo(BigDecimal.valueOf(0)) != 0) {
 			DynamicVO tgfcabDyVOOrigem = this.getCabDynamicVO(nuNotaOrigem);
 			
 			if (tgfcabDyVOOrigem != null) {
-				int codTipOperCab = tgfcabAtualDyVO.asInt("CODTIPOPER");
+				int codTipOperCab = tgfiteAtualDyVO.asInt("CODTIPOPER");
 				int codTipOperCabOrigem = tgfcabDyVOOrigem.asInt("CODTIPOPER");
 				
 				if (codTipOperCab == 1079 && codTipOperCabOrigem == 1009) {
-					Collection<?> itensDoPedido = EntityFacadeFactory.getDWFFacade().findByDynamicFinder(new FinderWrapper("ItemNota", "this.NUNOTA = ? and this.SEQUENCIA > 0", new Object[] { tgfcabDyVOOrigem.asBigDecimal("NUNOTA") }));					
+					Collection<?> itensDoPedido = EntityFacadeFactory.getDWFFacade().findByDynamicFinder(new FinderWrapper("ItemNota", "this.NUNOTA = ? and this.SEQUENCIA = ?", new Object[] { tgfcabDyVOOrigem.asBigDecimal("NUNOTA"), tgfiteAtualDyVO.asBigDecimalOrZero("SEQUENCIA") }));					
 					Iterator<?> iteratorDosItens = itensDoPedido.iterator();
 					
 					while (iteratorDosItens.hasNext()) {
@@ -43,10 +49,10 @@ public class EventoMarcarNaoPendenteProdutoEcommerce implements EventoProgramave
 						itemNotaVO.setProperty("PENDENTE", "N");
 						itensProEntity.setValueObject(itemNotaVO);
 						
-						this.mostrarNoConsole(
-							"NUNOTA = " + itemNotaVO.asBigDecimal("NUNOTA") + "\n"
-							+ "CODPROD = " + itemNotaVO.asBigDecimal("CODPROD") + "\n"
-							+ "SEQUENCIA = " + itemNotaVO.asBigDecimal("SEQUENCIA")
+						System.out.println(
+							"EventoMarcarNaoPendenteProdutoEcommerce. Nro Único=" + itemNotaVO.asBigDecimal("NUNOTA")
+							+ ". Cód. Produto=" + itemNotaVO.asBigDecimal("CODPROD")
+							+ ". Sequência=" + itemNotaVO.asBigDecimal("SEQUENCIA")
 						);
 					}
 				}
@@ -70,15 +76,6 @@ public class EventoMarcarNaoPendenteProdutoEcommerce implements EventoProgramave
 		JapeWrapper DAO = JapeFactory.dao("CabecalhoNota");
 		DynamicVO Vo = DAO.findOne("NUNOTA = ?", new Object[] { nuNota });
 		return Vo;
-	}
-	
-	public void mostrarNoConsole(String mensagem) {
-		System.out.println(
-			"====================== Mensagem ======================\n"
-			+ "======= EventoMarcarNaoPendenteProdutoEcommerce ======\n"
-			+ mensagem + "\n"
-			+ "======================================================"
-		);
 	}
 	
 }

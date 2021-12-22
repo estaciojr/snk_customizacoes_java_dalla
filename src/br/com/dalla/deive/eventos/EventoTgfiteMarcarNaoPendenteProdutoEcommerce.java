@@ -2,8 +2,6 @@ package br.com.dalla.deive.eventos;
 
 import java.math.BigDecimal;
 
-import org.apache.log4j.Logger;
-
 import br.com.sankhya.jape.bmp.PersistentLocalEntity;
 import br.com.sankhya.jape.vo.DynamicVO;
 import br.com.sankhya.jape.vo.PrePersistEntityState;
@@ -13,15 +11,17 @@ import br.com.sankhya.modelcore.comercial.ContextoRegra;
 import br.com.sankhya.modelcore.comercial.Regra;
 import br.com.sankhya.modelcore.dwfdata.vo.ItemNotaVO;
 import br.com.sankhya.modelcore.util.EntityFacadeFactory;
-import br.com.sankhya.movautomaticos.model.utils.LogUtils;
-import br.com.sankhya.movautomaticos.model.utils.NotaHelper;
 
 public class EventoTgfiteMarcarNaoPendenteProdutoEcommerce implements Regra {
 	
-	private static final Logger logger = (new LogUtils(NotaHelper.class)).getLogger();
-	
-	/**
+	/* Quando há apenas 1 unidade do produto no estoque, esta unidade é reservada
+	 * no pedido 1009, quando o movimento automático tenta gerar a top 1079
+	 * é apresentado erro informando que não há estoque suficiente do produto.
 	 * 
+	 * Esse evento faz com que antes de inserir o produto na TGFITE, o mesmo é marcado como
+	 * não pendente no pedido origem.
+	 * 
+	 * Fazendo com que a reserva saia e seja possível inserí-lo no pedido de separação.
 	 */
 	private static final long serialVersionUID = 1L;
 	
@@ -48,7 +48,7 @@ public class EventoTgfiteMarcarNaoPendenteProdutoEcommerce implements Regra {
 	private void marcarComoNaoPendenteOsProdutosNoPedido(ContextoRegra contextoRegra) throws Exception {
 		PrePersistEntityState prePersistEntityState = contextoRegra.getPrePersistEntityState();
 		
-		if (this.ehNoItemNota(prePersistEntityState)) {
+		if (this.ehItemNota(prePersistEntityState)) {
 			DynamicVO iteDynamicVOAtual = (DynamicVO) prePersistEntityState.getNewVO();
 			DynamicVO cabDynamicVOAtual = this.getCabDynamicVO(iteDynamicVOAtual.asBigDecimal("NUNOTA"));
 			
@@ -67,14 +67,14 @@ public class EventoTgfiteMarcarNaoPendenteProdutoEcommerce implements Regra {
 						itemNotaVO.setProperty("PENDENTE", "N");
 						persistentLocalEntityProduto.setValueObject(itemNotaVO);
 
-						logger.info("EventoTgfiteMarcarNaoPendenteProdutoEcommerce. Nro único do pedido ecommerce=" + nuNotaOrigem + ". Sequência=" + itemNotaVO.asBigDecimal("SEQUENCIA"));
+						System.out.println("EventoTgfiteMarcarNaoPendenteProdutoEcommerce. Nro único do pedido ecommerce=" + nuNotaOrigem + ". Sequência=" + itemNotaVO.asBigDecimal("SEQUENCIA"));
 					}
 				}
 			}
 		}
 	}
 	
-	private boolean ehNoItemNota(PrePersistEntityState prePersistEntityState) {
+	private boolean ehItemNota(PrePersistEntityState prePersistEntityState) {
 		if (prePersistEntityState.getDao().getEntityName() != null && prePersistEntityState.getDao().getEntityName().equals("ItemNota")) {
 			return true;
 		}
