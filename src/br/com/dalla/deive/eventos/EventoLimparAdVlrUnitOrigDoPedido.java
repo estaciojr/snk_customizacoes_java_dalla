@@ -1,24 +1,26 @@
 package br.com.dalla.deive.eventos;
 
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Iterator;
+import java.sql.PreparedStatement;
 
 import br.com.sankhya.extensions.eventoprogramavel.EventoProgramavelJava;
-import br.com.sankhya.jape.bmp.PersistentLocalEntity;
+import br.com.sankhya.jape.dao.JdbcWrapper;
 import br.com.sankhya.jape.event.PersistenceEvent;
 import br.com.sankhya.jape.event.TransactionContext;
-import br.com.sankhya.jape.util.FinderWrapper;
 import br.com.sankhya.jape.vo.DynamicVO;
-import br.com.sankhya.modelcore.dwfdata.vo.ItemNotaVO;
-import br.com.sankhya.modelcore.util.EntityFacadeFactory;
 
 /* No pedido origem
  * limpa o campo adicional AD_VLRUNITORIG da TGFITE
- * para resolver o problema que gera o pré-faturamento, é deletado,
- * voltar para o pedido de origem e o valor total não altera quando se altera
- * o tipo de negociação do pedido origem
- * De à vista para 10x por exemplo
+ * para resolver o problema: Quando o pedido de vendas é confirmado, o pré-faturamento é criado
+ * e na tabela TGFITE do pedido de vendas o campo adicional AD_VLRUNITORIG é preenchido.
+ * Quando o pré-faturamento é deletado, esse campo adicional no pedido origem continua preenchido
+ * e se o tipo de negociação é trocado, os valores dos produtos não mudam.
+ * Acontece quando há promoção à vista e o tipo de negociação é alterado para 10x,
+ * os produtos continuam com o preço a vista.
+ * 
+ * Evento na TGFCAB
+ * 
+ * Para não ficar limitado ao acesso do usuário logado, feito UPDATE direto no banco de dados
  */
 
 public class EventoLimparAdVlrUnitOrigDoPedido implements EventoProgramavelJava {
@@ -30,8 +32,10 @@ public class EventoLimparAdVlrUnitOrigDoPedido implements EventoProgramavelJava 
 		if (this.ehPreFaturamento(cabecalhoPreFaturamento)) {
 			if (this.temPedidoOrigem(cabecalhoPreFaturamento)) {
 				BigDecimal nroUnicoPedidoOrigem = cabecalhoPreFaturamento.asBigDecimal("AD_NUNOTAORIG");
-				System.out.println("Limpando o campo AD_VLRUNITORIG do pedido de nro único " + nroUnicoPedidoOrigem);
-				this.limparAdVlrUnitOrig(nroUnicoPedidoOrigem);
+				
+				System.out.println("EventoLimparAdVlrUnitOrigDoPedido. Número único do pedido de venda=" + nroUnicoPedidoOrigem + ". Marcando campo AD_VLRUNITORIG = null na TGFITE");
+				
+				this.limparAdVlrUnitOrig(nroUnicoPedidoOrigem, persistenceEvent);
 			}
 		}
 	}
@@ -70,15 +74,19 @@ public class EventoLimparAdVlrUnitOrigDoPedido implements EventoProgramavelJava 
 		return false;
 	}
 	
-	private void limparAdVlrUnitOrig(BigDecimal nroUnicoOrigem) throws Exception {
-		Collection<?> itensDoPedido = EntityFacadeFactory.getDWFFacade().findByDynamicFinder(new FinderWrapper("ItemNota", "this.NUNOTA = ? and this.SEQUENCIA > 0", new Object[] { nroUnicoOrigem }));					
-		Iterator<?> iteratorDosItens = itensDoPedido.iterator();
+	private void limparAdVlrUnitOrig(BigDecimal nroUnicoOrigem, PersistenceEvent persistenceEvent) throws Exception {
+		JdbcWrapper jdbc = null;
 		
-		while (iteratorDosItens.hasNext()) {
-			PersistentLocalEntity itensProEntity = (PersistentLocalEntity) iteratorDosItens.next();
-			ItemNotaVO itemNotaVO = (ItemNotaVO) ((DynamicVO) itensProEntity.getValueObject()).wrapInterface(ItemNotaVO.class);
-			itemNotaVO.setProperty("AD_VLRUNITORIG", null);
-			itensProEntity.setValueObject(itemNotaVO);
+		try {
+			jdbc = persistenceEvent.getJdbcWrapper();
+			jdbc.openSession();
+			PreparedStatement pstm = null;
+			pstm = jdbc.getPreparedStatement("UPDATE TGFITE SET AD_VLRUNITORIG = null WHERE NUNOTA = " + nroUnicoOrigem + ";");
+		    pstm.executeUpdate();
+		} catch (Exception exception) {
+			System.out.println(exception.getMessage());
+		} finally {
+			jdbc.closeSession();
 		}
 	}
 
