@@ -23,6 +23,14 @@ import br.com.sankhya.modelcore.comercial.Regra;
 import br.com.sankhya.modelcore.dwfdata.vo.tgf.FinanceiroVO;
 import br.com.sankhya.modelcore.util.EntityFacadeFactory;
 
+/* O Tipo de Negociação no cabeçalho do pedido precisa
+ * ficar como 9999 para o Ecommerce.
+ * 
+ * Quando é gerado a nota 1108, os títulos do Financeiro são refeitos,
+ * perdendo assim a configuração original.
+ * Esse evento copia os títulos que estão no Pedido e Insere na nota de TOP 1108
+ */
+
 public class EventoTgfcabLimpaECopiaFinanceiroEcommerce implements Regra {
 
 	/**
