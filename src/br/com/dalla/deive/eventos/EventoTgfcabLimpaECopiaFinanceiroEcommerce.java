@@ -83,10 +83,6 @@ public class EventoTgfcabLimpaECopiaFinanceiroEcommerce implements Regra {
 					int codTipOperOrigem = pedidoOrigemVO.asInt("CODTIPOPER");
 					String nuPedidoVtex = pedidoOrigemVO.asString("AD_PEDIDOECOM");
 					
-					if (nuPedidoVtex == null) {
-						this.exibirErro("Pedido origem não veio da VTEX.");
-					}
-
 					if (
 						codEmpOrigem == 9
 						&& codTipOperOrigem == 1009
