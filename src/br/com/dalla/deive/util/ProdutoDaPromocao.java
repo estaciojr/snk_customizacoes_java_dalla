@@ -48,6 +48,10 @@ public class ProdutoDaPromocao {
 			 );
 	}
 	
+	private BigDecimal getCustoGerencial() throws Exception {
+		return ComercialUtils.getUltimoCusto(this.produtoDaPromocao.asBigDecimalOrZero("CODPROD"), BigDecimal.valueOf(1), BigDecimal.valueOf(0), "", "CUSGER");
+	}
+	
 	private BigDecimal getPercentualDeDesconto() throws Exception {
 		double precoPromocional = this.produtoDaPromocao.asBigDecimalOrZero("PRECOPROM").doubleValue();
 		double precoDeTabela = this.getPrecoDaTabela().doubleValue();
@@ -67,20 +71,39 @@ public class ProdutoDaPromocao {
 		return false;
 	}
 	
+	private boolean valorDoPrecoPromocionalEhNegativo() throws Exception {
+		if (this.produtoDaPromocao.asBigDecimalOrZero("PRECOPROM").doubleValue() < 0) {
+			return true;
+		}
+		
+		return false;
+	}
+	
 	public void atualizarDadosDoProdutoNaPromocao() throws Exception {
-		System.out.println("EventoAtualizaPrecoTabelaProdutoPromocao. "
-				+ "Tabela de preco=" + this.cabecalhoDaPromocaoVO.asBigDecimalOrZero("NUTAB")
-				+ ". Produto=" + this.produtoDaPromocao.asBigDecimalOrZero("CODPROD")
-				+ ". Preco na tabela=" + this.getPrecoDaTabela()
-				+ ". Preco promocional=" + this.produtoDaPromocao.asBigDecimalOrZero("PRECOPROM")
-				+ ". Percentual de desconto=" + this.getPercentualDeDesconto());
+		System.out.println(
+			"EventoAtualizaPrecoTabelaProdutoPromocao. "
+			+ "Tabela de preco=" + this.cabecalhoDaPromocaoVO.asBigDecimalOrZero("NUTAB")
+			+ ". Produto=" + this.produtoDaPromocao.asBigDecimalOrZero("CODPROD")
+			+ ". Preco na tabela=" + this.getPrecoDaTabela()
+			+ ". Preco promocional=" + this.produtoDaPromocao.asBigDecimalOrZero("PRECOPROM")
+			+ ". Percentual de desconto=" + this.getPercentualDeDesconto()
+			+ ". Custo gerencial=" + this.getCustoGerencial()
+		);
 		
 		if (this.valorDoDescontoEhMaiorQueValorDeVenda()) {
 			HelperMensagemDeErro.exibirErro(
-					"Valor promocional maior que valor do preço de venda 10x!\n"
-					+ "Preço promocional: " + this.produtoDaPromocao.asBigDecimalOrZero("PRECOPROM") + "\n"
-					+ "Preço de venda 10x: " + this.getPrecoDaTabela() + "\n"
-					+ "Tabela de venda: " + this.cabecalhoDaPromocaoVO.asBigDecimalOrZero("NUTAB"));
+				"Valor promocional maior que valor do preço de venda 10x!\n"
+				+ "Preço promocional: " + this.produtoDaPromocao.asBigDecimalOrZero("PRECOPROM") + "\n"
+				+ "Preço de venda 10x: " + this.getPrecoDaTabela() + "\n"
+				+ "Tabela de venda: " + this.cabecalhoDaPromocaoVO.asBigDecimalOrZero("NUTAB")
+			);
+		}
+		
+		if (this.valorDoPrecoPromocionalEhNegativo()) {
+			HelperMensagemDeErro.exibirErro(
+				"Valor promocional negativo. Inválido.\n"
+				+ "Valor promocional: " + this.produtoDaPromocao.asBigDecimalOrZero("PRECOPROM")
+			);
 		}
 		
 		PersistentLocalEntity persistentLocalEntity = EntityFacadeFactory.getDWFFacade().findEntityByPrimaryKey("AD_TGFDESC", new Object[] { this.produtoDaPromocao.asBigDecimalOrZero("CODGRUPODESC"), this.produtoDaPromocao.asBigDecimalOrZero("SEQUENCIA") });
