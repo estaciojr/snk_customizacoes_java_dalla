@@ -61,7 +61,7 @@ public class ProdutoDaPromocao {
 		double precoPromocional = this.produtoDaPromocao.asBigDecimalOrZero("PRECOPROM").doubleValue();
 		double precoDeTabela = this.getPrecoDaTabela().doubleValue();
 		
-		BigDecimal percentualDeDesconto = BigDecimal.valueOf(precoPromocional / precoDeTabela * 100);
+		BigDecimal percentualDeDesconto = BigDecimal.valueOf(100 - precoPromocional / precoDeTabela * 100);
 		
 		percentualDeDesconto = percentualDeDesconto.setScale(2, RoundingMode.HALF_EVEN);
 		
@@ -72,7 +72,7 @@ public class ProdutoDaPromocao {
 		double percentualDeDesconto = this.produtoDaPromocao.asBigDecimalOrZero("PERCDESC").doubleValue();
 		double precoDeTabela = this.getPrecoDaTabela().doubleValue();
 		
-		BigDecimal valorPromocional = BigDecimal.valueOf(precoDeTabela * percentualDeDesconto / 100);
+		BigDecimal valorPromocional = BigDecimal.valueOf(precoDeTabela - precoDeTabela * percentualDeDesconto / 100);
 		
 		valorPromocional = valorPromocional.setScale(2, RoundingMode.HALF_EVEN);
 		
@@ -95,6 +95,35 @@ public class ProdutoDaPromocao {
 		return false;
 	}
 	
+	private boolean percentualDeDescontoEhMaiorQue100() throws Exception {
+		return (this.produtoDaPromocao.asBigDecimalOrZero("PERCDESC").doubleValue() > 100) ? true : false ;
+	}
+	
+	private void executarValidacoes() throws Exception {
+		if (this.valorDoDescontoEhMaiorQueValorDeVenda()) {
+			HelperMensagemDeErro.exibirErro(
+				"Valor promocional maior que valor do preço de venda 10x!\n"
+				+ "Preço promocional: " + this.produtoDaPromocao.asBigDecimalOrZero("PRECOPROM") + "\n"
+				+ "Preço de venda 10x: " + this.getPrecoDaTabela() + "\n"
+				+ "Tabela de venda: " + this.cabecalhoDaPromocaoVO.asBigDecimalOrZero("NUTAB")
+			);
+		}
+		
+		if (this.percentualDeDescontoEhMaiorQue100()) {
+			HelperMensagemDeErro.exibirErro(
+				"Percentual de desconto inválido!\n"
+				+ "Maior que 100%."
+			);
+		}
+		
+		if (this.valorDoPrecoPromocionalEhNegativo()) {
+			HelperMensagemDeErro.exibirErro(
+				"Valor promocional negativo. Inválido.\n"
+				+ "Valor promocional: " + this.produtoDaPromocao.asBigDecimalOrZero("PRECOPROM")
+			);
+		}
+	}
+	
 	public void atualizarDadosDoProdutoNaPromocao() throws Exception {
 		System.out.println(
 			"EventoAtualizaPrecoTabelaProdutoPromocao. "
@@ -106,21 +135,7 @@ public class ProdutoDaPromocao {
 			+ ". Custo gerencial=" + this.getCustoGerencial()
 		);
 		
-		if (this.valorDoDescontoEhMaiorQueValorDeVenda()) {
-			HelperMensagemDeErro.exibirErro(
-				"Valor promocional maior que valor do preço de venda 10x!\n"
-				+ "Preço promocional: " + this.produtoDaPromocao.asBigDecimalOrZero("PRECOPROM") + "\n"
-				+ "Preço de venda 10x: " + this.getPrecoDaTabela() + "\n"
-				+ "Tabela de venda: " + this.cabecalhoDaPromocaoVO.asBigDecimalOrZero("NUTAB")
-			);
-		}
-		
-		if (this.valorDoPrecoPromocionalEhNegativo()) {
-			HelperMensagemDeErro.exibirErro(
-				"Valor promocional negativo. Inválido.\n"
-				+ "Valor promocional: " + this.produtoDaPromocao.asBigDecimalOrZero("PRECOPROM")
-			);
-		}
+		this.executarValidacoes();
 		
 		/* Quando o evento de afterInsert é executado, é feito modificação no campo
 		 * PERCDESC, que por consequência o evento tenta modificar o campo PRECOPROM, ele entra
