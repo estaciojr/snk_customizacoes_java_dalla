@@ -79,7 +79,7 @@ public class ProdutoDaPromocao {
 		return valorPromocional;
 	}
 	
-	private boolean valorDoDescontoEhMaiorQueValorDeVenda() throws Exception {
+	/*private boolean valorDoDescontoEhMaiorQueValorDeVenda() throws Exception {
 		return this.produtoDaPromocao.asDouble("PRECOPROM") > this.getPrecoDaTabela().doubleValue();
 	}
 	
@@ -125,7 +125,7 @@ public class ProdutoDaPromocao {
 				+ "Valor promocional: " + this.produtoDaPromocao.asBigDecimalOrZero("PRECOPROM")
 			);
 		}
-	}
+	}*/
 	
 	public void atualizarDadosDoProdutoNaPromocao() throws Exception {
 		System.out.println(
@@ -138,7 +138,7 @@ public class ProdutoDaPromocao {
 			+ ". Custo gerencial=" + this.getCustoGerencial()
 		);
 		
-		this.executarValidacoes();
+//		this.executarValidacoes();
 		
 		/* Quando o evento de afterInsert é executado, é feito modificação no campo
 		 * PERCDESC, que por consequência o evento tenta modificar o campo PRECOPROM, ele entra
