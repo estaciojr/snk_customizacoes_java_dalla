@@ -80,32 +80,35 @@ public class ProdutoDaPromocao {
 	}
 	
 	private boolean valorDoDescontoEhMaiorQueValorDeVenda() throws Exception {
-		if (this.produtoDaPromocao.asDouble("PRECOPROM") > this.getPrecoDaTabela().doubleValue()) {
-			return true;
-		}
-		
-		return false;
+		return this.produtoDaPromocao.asDouble("PRECOPROM") > this.getPrecoDaTabela().doubleValue();
 	}
 	
 	private boolean valorDoPrecoPromocionalEhNegativo() throws Exception {
-		if (this.produtoDaPromocao.asBigDecimalOrZero("PRECOPROM").doubleValue() < 0) {
-			return true;
-		}
-		
-		return false;
+		return this.produtoDaPromocao.asBigDecimalOrZero("PRECOPROM").doubleValue() < 0;
 	}
 	
 	private boolean percentualDeDescontoEhMaiorQue100() throws Exception {
-		return (this.produtoDaPromocao.asBigDecimalOrZero("PERCDESC").doubleValue() > 100) ? true : false ;
+		return this.produtoDaPromocao.asBigDecimalOrZero("PERCDESC").doubleValue() > 100;
+	}
+	
+	private boolean percentualDeDescontoEhNegativo() throws Exception {
+		return this.produtoDaPromocao.asBigDecimalOrZero("PERCDESC").doubleValue() < 0;
 	}
 	
 	private void executarValidacoes() throws Exception {
 		if (this.valorDoDescontoEhMaiorQueValorDeVenda()) {
 			HelperMensagemDeErro.exibirErro(
-				"Valor promocional maior que valor do preço de venda 10x!\n"
+				"Valor promocional maior que valor do preço de venda na tabela\n"
 				+ "Preço promocional: " + this.produtoDaPromocao.asBigDecimalOrZero("PRECOPROM") + "\n"
-				+ "Preço de venda 10x: " + this.getPrecoDaTabela() + "\n"
-				+ "Tabela de venda: " + this.cabecalhoDaPromocaoVO.asBigDecimalOrZero("NUTAB")
+				+ "Preço na tabela: " + this.getPrecoDaTabela() + "\n"
+				+ "Tabela: " + this.cabecalhoDaPromocaoVO.asBigDecimalOrZero("NUTAB")
+			);
+		}
+		
+		if (this.percentualDeDescontoEhNegativo()) {
+			HelperMensagemDeErro.exibirErro(
+				"Percentual de desconto inválido!\n"
+				+ "Porcentagem negativa."
 			);
 		}
 		
@@ -171,9 +174,9 @@ public class ProdutoDaPromocao {
 		dynamicVO.setProperty("PRECOTAB", this.getPrecoDaTabela());
 		dynamicVO.setProperty("ESTAH_SENDO_INSERIDO", "S");
 		
-		if (this.produtoDaPromocao.asBigDecimalOrZero("PERCDESC").doubleValue() != 0) {
+		if (this.produtoDaPromocao.asBigDecimal("PERCDESC") != null) {
 			dynamicVO.setProperty("PRECOPROM", this.getValorPromocionalCalculadoPelaPorcentagemDeDesconto());
-		} else {
+		} else if (this.produtoDaPromocao.asBigDecimal("PRECOPROM") != null) {
 			dynamicVO.setProperty("PERCDESC", this.getPercentualDeDescontoCalculadoPeloPeloPrecoPromocional());
 		}
 		
@@ -187,10 +190,10 @@ public class ProdutoDaPromocao {
 		
 		ModifingFields modifingFields = this.persistenceEvent.getModifingFields();
 		if (modifingFields.isModifing("PERCDESC")) {
-			System.out.println("Está sendo modificado o campo PERCDESC!!!!");
+			System.out.println("EventoAtualizaPrecoTabelaProdutoPromocao. Está sendo modificado o campo=PERCDESC");
 			this.produtoDaPromocao.setProperty("PRECOPROM", this.getValorPromocionalCalculadoPelaPorcentagemDeDesconto());
 		} else if (modifingFields.isModifing("PRECOPROM")) {
-			System.out.println("Está sendo modificado o campo PRECOPROM!!!!");
+			System.out.println("EventoAtualizaPrecoTabelaProdutoPromocao. Está sendo modificado o campo=PRECOPROM");
 			this.produtoDaPromocao.setProperty("PERCDESC", this.getPercentualDeDescontoCalculadoPeloPeloPrecoPromocional());
 		}
 	}
