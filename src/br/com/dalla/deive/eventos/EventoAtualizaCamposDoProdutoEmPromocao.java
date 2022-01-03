@@ -1,9 +1,17 @@
 package br.com.dalla.deive.eventos;
 
 import br.com.dalla.deive.util.ProdutoDaPromocao;
+
 import br.com.sankhya.extensions.eventoprogramavel.EventoProgramavelJava;
 import br.com.sankhya.jape.event.PersistenceEvent;
 import br.com.sankhya.jape.event.TransactionContext;
+
+/* Necessário exportar as classes:
+ *  - EventoAtualizaCamposDoProdutoEmPromocao
+ *  - HelperGetDynamicVO
+ *  - HelperMensagemDeErro
+ *  - ProdutoDaPromocao
+ */
 
 public class EventoAtualizaCamposDoProdutoEmPromocao implements EventoProgramavelJava {
 
