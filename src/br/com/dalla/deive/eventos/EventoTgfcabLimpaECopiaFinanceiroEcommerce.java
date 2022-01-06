@@ -1,12 +1,14 @@
 package br.com.dalla.deive.eventos;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Iterator;
 
 import br.com.sankhya.extensions.actionbutton.Registro;
 import br.com.sankhya.jape.EntityFacade;
-import br.com.sankhya.jape.PersistenceException;
 import br.com.sankhya.jape.bmp.PersistentLocalEntity;
 import br.com.sankhya.jape.util.FinderWrapper;
 import br.com.sankhya.jape.util.JapeSessionContext;
@@ -90,7 +92,7 @@ public class EventoTgfcabLimpaECopiaFinanceiroEcommerce implements Regra {
 						&& pedidoAtualVO.asInt("NUNOTA") != pedidoAtualVO.asInt("AD_NUNOTAORIG")
 					) {
 						this.apagarTitulos(pedidoAtualVO);
-						this.copiarTitulos(pedidoAtualVO.asBigDecimal("AD_NUNOTAORIG"), pedidoAtualVO, tipOperAtualVO);
+						this.copiarTitulos(pedidoAtualVO.asBigDecimal("AD_NUNOTAORIG"), pedidoAtualVO, tipOperAtualVO, pedidoOrigemVO);
 					}
 				}
 			}
@@ -103,7 +105,7 @@ public class EventoTgfcabLimpaECopiaFinanceiroEcommerce implements Regra {
 		return Vo;
 	}
 	
-	public void copiarTitulos(BigDecimal nroUnicoPedOrigem, DynamicVO pedidoAtualVO, DynamicVO tipOperAtualVO) throws Exception {
+	public void copiarTitulos(BigDecimal nroUnicoPedOrigem, DynamicVO pedidoAtualVO, DynamicVO tipOperAtualVO, DynamicVO pedidoOrigemVO) throws Exception {
 		EntityFacade dwf = EntityFacadeFactory.getDWFFacade();
 		FinderWrapper titulosOrigemFinder = new FinderWrapper("Financeiro", "this.NUNOTA = ?", new Object[]{ nroUnicoPedOrigem });
 		Collection<PersistentLocalEntity> titulosOrigemFinderCollection = dwf.findByDynamicFinder(titulosOrigemFinder);
@@ -114,6 +116,16 @@ public class EventoTgfcabLimpaECopiaFinanceiroEcommerce implements Regra {
 			PersistentLocalEntity tituloOrigemPersistentLocalEntity = (PersistentLocalEntity) titulosOrigemIterator.next();
 			DynamicVO tituloOrigemVO = ((DynamicVO) tituloOrigemPersistentLocalEntity.getValueObject()).wrapInterface(FinanceiroVO.class);
 			
+			
+			Duration duracaoEmDias = Duration.between(pedidoOrigemVO.asTimestamp("DTNEG").toInstant(), tituloOrigemVO.asTimestamp("DTVENC").toInstant());
+			
+            Calendar calendarioHelper = Calendar.getInstance();
+            calendarioHelper.setTime(pedidoAtualVO.asTimestamp("DTNEG"));
+            calendarioHelper.add(Calendar.DAY_OF_WEEK, (int) duracaoEmDias.toDays());
+            
+            Timestamp novaDtVenc = new Timestamp(calendarioHelper.getTime().getTime());
+			
+            
 			JapeWrapper novoFinanceiroDAO = JapeFactory.dao("Financeiro");
 			FluidCreateVO novoFinanceiroFluidVO = novoFinanceiroDAO.create();
 			novoFinanceiroFluidVO.set("RECDESP", tituloOrigemVO.asBigDecimal("RECDESP"));
@@ -121,7 +133,7 @@ public class EventoTgfcabLimpaECopiaFinanceiroEcommerce implements Regra {
 			novoFinanceiroFluidVO.set("CODCENCUS", tituloOrigemVO.asBigDecimal("CODCENCUS"));
 			novoFinanceiroFluidVO.set("CODEMP", tituloOrigemVO.asBigDecimal("CODEMP"));
 			novoFinanceiroFluidVO.set("CODPARC", tituloOrigemVO.asBigDecimal("CODPARC"));
-			novoFinanceiroFluidVO.set("DTNEG", tituloOrigemVO.asTimestamp("DTNEG"));
+			novoFinanceiroFluidVO.set("DTNEG", pedidoAtualVO.asTimestamp("DTNEG")/*tituloOrigemVO.asTimestamp("DTNEG")*/);
 			novoFinanceiroFluidVO.set("CODTIPOPER", tituloOrigemVO.asBigDecimal("CODTIPOPER"));
 			novoFinanceiroFluidVO.set("DHTIPOPER", tituloOrigemVO.asTimestamp("DHTIPOPER"));
 			novoFinanceiroFluidVO.set("ORIGEM", tituloOrigemVO.asString("ORIGEM"));
@@ -130,7 +142,7 @@ public class EventoTgfcabLimpaECopiaFinanceiroEcommerce implements Regra {
 			novoFinanceiroFluidVO.set("DESDOBRAMENTO", tituloOrigemVO.asString("DESDOBRAMENTO"));
 			novoFinanceiroFluidVO.set("VLRDESDOB", tituloOrigemVO.asBigDecimal("VLRDESDOB"));
 			novoFinanceiroFluidVO.set("CODTIPTIT", tituloOrigemVO.asBigDecimal("CODTIPTIT"));
-			novoFinanceiroFluidVO.set("DTVENC", tituloOrigemVO.asTimestamp("DTVENC"));
+			novoFinanceiroFluidVO.set("DTVENC", novaDtVenc/*tituloOrigemVO.asTimestamp("DTVENC")*/);
 			novoFinanceiroFluidVO.set("HISTORICO", tituloOrigemVO.asString("HISTORICO"));
 			String provisao = tipOperAtualVO.asString("TIPATUALFIN").equals("P") ? "S" : "N";
 			novoFinanceiroFluidVO.set("PROVISAO", provisao);
@@ -171,10 +183,6 @@ public class EventoTgfcabLimpaECopiaFinanceiroEcommerce implements Regra {
 		}
 		
 		return false;
-	}
-	
-	private void exibirErro(String mensagem) throws Exception  {
-		throw new PersistenceException("<p align=\"center\"><img src=\"https://dallabernardina.vteximg.com.br/arquivos/logo_header.png\"></img></p><br/><br/><br/><br/><br/><br/>\n\n\n\n<font size=\"12\" color=\"#BF2C2C\"><b> " + mensagem + "</b></font>\n\n\n");
 	}
 	
 	public DynamicVO getTgfcab(BigDecimal nuNota) throws Exception {
