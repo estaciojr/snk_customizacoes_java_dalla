@@ -14,55 +14,37 @@ import br.com.sankhya.jape.wrapper.JapeWrapper;
 public class EventoAlteraTituloAfiliadosEcommerce implements EventoProgramavelJava {
 
 	@Override
-	public void afterDelete(PersistenceEvent arg0) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
+	public void afterDelete(PersistenceEvent arg0) throws Exception { }
 
 	@Override
 	public void afterInsert(PersistenceEvent percistenceEvent) throws Exception { }
 
 	@Override
-	public void afterUpdate(PersistenceEvent arg0) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
+	public void afterUpdate(PersistenceEvent arg0) throws Exception { }
 
 	@Override
-	public void beforeCommit(TransactionContext arg0) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
+	public void beforeCommit(TransactionContext arg0) throws Exception { }
 
 	@Override
-	public void beforeDelete(PersistenceEvent arg0) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
+	public void beforeDelete(PersistenceEvent arg0) throws Exception { }
 
 	@Override
 	public void beforeInsert(PersistenceEvent persistenceEvent) throws Exception {
-		// TODO Auto-generated method stub
-		
 		this.inicio(persistenceEvent);
 	}
 
 	@Override
-	public void beforeUpdate(PersistenceEvent arg0) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
+	public void beforeUpdate(PersistenceEvent arg0) throws Exception { }
 	
 	private void inicio(PersistenceEvent persistenceEvent) throws Exception {
 		DynamicVO financeiroEcom = (DynamicVO) persistenceEvent.getVo();
 		
 		DynamicVO pedidoDeVendaEcom = this.getTgfcab(financeiroEcom.asBigDecimalOrZero("NUNOTA"));
 		
-		if (pedidoDeVendaEcom != null) {
+		if (pedidoDeVendaEcom == null) {
+			System.out.println("EventoAlteraTituloAfiliadosEcommerce. Financeiro não vinculado a nota ou pedido.");
+		} else {
 			String pedidoEcommerce = pedidoDeVendaEcom.asString("AD_PEDIDOECOM");
-			
-			System.out.println("**************** Pedido ecommerce: " + pedidoEcommerce);
-			System.out.println("**************** isEmpty: " + StringUtils.isEmpty(pedidoEcommerce));
 			
 			if (!StringUtils.isEmpty(pedidoEcommerce)) {
 				DynamicVO pedidoVtex = this.getPedidoVtex(pedidoEcommerce);
@@ -70,9 +52,6 @@ public class EventoAlteraTituloAfiliadosEcommerce implements EventoProgramavelJa
 				String idAfiliado = pedidoVtex.asString("IDAFILIADO");
 				
 				if (!StringUtils.isEmpty(idAfiliado)) {
-					System.out.println("**************** ID Afiliado: " + idAfiliado);
-					System.out.println("**************** isEmpty: " + StringUtils.isEmpty(idAfiliado));
-					
 					DynamicVO pagamentoAfiliadoVtex = this.getPagamentoAfiliadoVtex(idAfiliado);
 					
 					if (pagamentoAfiliadoVtex == null) {
@@ -80,15 +59,15 @@ public class EventoAlteraTituloAfiliadosEcommerce implements EventoProgramavelJa
 					} else {
 						BigDecimal tipoDeTitulo = pagamentoAfiliadoVtex.asBigDecimalOrZero("CODTIPTIT");
 						
-						System.out.println("**************** CODTIPTIT: " + tipoDeTitulo);
-						
 						financeiroEcom.setProperty("CODTIPTIT", tipoDeTitulo);
 						
-						System.out.println("**************** NROUNICO: " + pedidoDeVendaEcom.asBigDecimalOrZero("NUNOTA"));
-						
-//						this.alterarTitulos(pedidoDeVendaEcom.asBigDecimalOrZero("NUNOTA"), tipoDeTitulo);
+						System.out.println("EventoAlteraTituloAfiliadosEcommerce. Título alterado. Nro único=" + pedidoDeVendaEcom.asBigDecimalOrZero("NUNOTA") + ". Tipo de Título=" + tipoDeTitulo);
 					}
+				} else {
+					System.out.println("EventoAlteraTituloAfiliadosEcommerce. ID Afiliado não preenchido no pedido da VTEX. Pedido=" + pedidoEcommerce);
 				}
+			} else {
+				System.out.println("EventoAlteraTituloAfiliadosEcommerce. Campo AD_PEDIDOECOM não preenchido. Nro único=" + pedidoDeVendaEcom.asBigDecimalOrZero("NUNOTA"));
 			}
 		}
 	}
@@ -111,21 +90,4 @@ public class EventoAlteraTituloAfiliadosEcommerce implements EventoProgramavelJa
 		return Vo;
 	}
 	
-//	private void alterarTitulos(BigDecimal nroUnicoPedido, BigDecimal codTipTit) throws Exception {
-//		EntityFacade dwf = EntityFacadeFactory.getDWFFacade();
-//		FinderWrapper titulosFinder = new FinderWrapper("Financeiro", "this.NUNOTA = ?", new Object[]{ nroUnicoPedido });
-//		Collection<PersistentLocalEntity> titulosFinderCollection = dwf.findByDynamicFinder(titulosFinder);
-//		
-//		Iterator<PersistentLocalEntity> titulosterator = titulosFinderCollection.iterator();
-//		
-//		while (titulosterator.hasNext()) {
-//			PersistentLocalEntity tituloPersistentLocalEntity = (PersistentLocalEntity) titulosterator.next();
-//			DynamicVO tituloVO = ((DynamicVO) tituloPersistentLocalEntity.getValueObject()).wrapInterface(FinanceiroVO.class);
-//			
-//			tituloVO.setProperty("CODTIPTIT", codTipTit);
-//			
-//			System.out.println("**************** nroUnico: " + nroUnicoPedido);
-//		}
-//	}
-
 }
