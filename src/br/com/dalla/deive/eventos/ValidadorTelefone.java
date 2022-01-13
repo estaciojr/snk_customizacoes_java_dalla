@@ -1,8 +1,8 @@
 package br.com.dalla.deive.eventos;
 
 import br.com.sankhya.extensions.eventoprogramavel.EventoProgramavelJava;
-import br.com.sankhya.jape.event.PersistenceEvent;
 import br.com.sankhya.jape.PersistenceException;
+import br.com.sankhya.jape.event.PersistenceEvent;
 import br.com.sankhya.jape.event.TransactionContext;
 import br.com.sankhya.jape.vo.DynamicVO;
 
@@ -28,14 +28,20 @@ public class ValidadorTelefone implements EventoProgramavelJava {
 
 	private void validaCampoTelefoneParceiro(PersistenceEvent persistenceEvent) throws Exception {
 		DynamicVO parVo = (DynamicVO) persistenceEvent.getVo();
+
+		String email = (parVo.asString("EMAIL") == null) ? "" : parVo.asString("EMAIL");
 		
-		String telefone = parVo.asString("TELEFONE");
+		System.out.println("ValidadorTelefone. Email=" + email + ". Contains vtex=" + email.contains("vtex"));
 		
-		String telefoneNovo = telefone.replace(" ", "");
-		
-		if (telefoneNovo != null) {
-			if (telefoneNovo.length() < 10) {
-				this.exibirErro("O campo Telefone deve conter pelo menos 10 dígitos\nTelefone: " + telefoneNovo + ". Qtd. caracteres: " + telefoneNovo.length());
+		if (!email.contains("vtex")) {
+			String telefone =  (parVo.asString("TELEFONE") == null) ? "" : parVo.asString("TELEFONE");
+			
+			String telefoneNovo = telefone.replace(" ", "");
+			
+			if (telefoneNovo != null) {
+				if (telefoneNovo.length() < 10) {
+					this.exibirErro("O campo Telefone deve conter pelo menos 10 dígitos\nTelefone: " + telefoneNovo + ". Qtd. caracteres: " + telefoneNovo.length());
+				}
 			}
 		}
 	}

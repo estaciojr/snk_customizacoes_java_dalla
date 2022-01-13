@@ -72,9 +72,9 @@ public class ValidaOpcoesDeEntrega implements EventoProgramavelJava {
 				exibirErro("Não é possível usar o estoque da empresa 12 para fazer retira ou entrega no CD.");
 			}
 			
-			if (codEmp.compareTo(new BigDecimal(12)) == 0 && codEmpEst.compareTo(new BigDecimal(4)) != 0 && (tipoEntrega.equals("E") || tipoEntrega.equals("R"))) {
-				exibirErro("Não é possível usar o estoque de outras lojas para Entrega ou Retira pelo CD.");
-			}
+//			if (codEmp.compareTo(new BigDecimal(12)) == 0 && codEmpEst.compareTo(new BigDecimal(4)) != 0 && (tipoEntrega.equals("E") || tipoEntrega.equals("R"))) {
+//				exibirErro("Não é possível usar o estoque de outras lojas para Entrega ou Retira pelo CD.");
+//			}
 			
 			if ((codEmp.compareTo(new BigDecimal(2)) != 0 && codEmp.compareTo(new BigDecimal(12)) != 0) && codEmpEst.compareTo(new BigDecimal(12)) == 0) {
 				exibirErro("Não é possível usar o estoque da loja 12 para vendas realizadas em outras lojas. Exceto vendas na loja 2 ou 12");

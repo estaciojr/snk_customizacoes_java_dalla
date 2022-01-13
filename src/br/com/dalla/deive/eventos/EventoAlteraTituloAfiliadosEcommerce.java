@@ -45,8 +45,9 @@ public class EventoAlteraTituloAfiliadosEcommerce implements EventoProgramavelJa
 			System.out.println("EventoAlteraTituloAfiliadosEcommerce. Financeiro não vinculado a nota ou pedido.");
 		} else {
 			String pedidoEcommerce = pedidoDeVendaEcom.asString("AD_PEDIDOECOM");
+			BigDecimal codTipOperPedidoEcommerce = pedidoDeVendaEcom.asBigDecimalOrZero("CODTIPOPER");
 			
-			if (!StringUtils.isEmpty(pedidoEcommerce)) {
+			if (!StringUtils.isEmpty(pedidoEcommerce) && codTipOperPedidoEcommerce.compareTo(BigDecimal.valueOf(1009)) == 0) {
 				DynamicVO pedidoVtex = this.getPedidoVtex(pedidoEcommerce);
 				
 				String idAfiliado = pedidoVtex.asString("IDAFILIADO");
