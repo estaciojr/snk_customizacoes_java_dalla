@@ -1,22 +1,20 @@
 package br.com.dalla.deive.eventos;
 
+import java.math.BigDecimal;
+
 import br.com.sankhya.extensions.eventoprogramavel.EventoProgramavelJava;
-import br.com.sankhya.jape.wrapper.JapeWrapper;
-import br.com.sankhya.jape.wrapper.JapeFactory;
-import br.com.sankhya.jape.event.PersistenceEvent;
 import br.com.sankhya.jape.PersistenceException;
+import br.com.sankhya.jape.event.PersistenceEvent;
 import br.com.sankhya.jape.event.TransactionContext;
 import br.com.sankhya.jape.vo.DynamicVO;
-
-import java.math.BigDecimal;
+import br.com.sankhya.jape.wrapper.JapeFactory;
+import br.com.sankhya.jape.wrapper.JapeWrapper;
 
 public class ValidaOpcoesDeEntrega implements EventoProgramavelJava {
 	
 	public void beforeInsert(PersistenceEvent persistenceEvent) throws Exception {
 		this.validaOpcaoEntregaFaltante(persistenceEvent);
-		
 		this.validaTransferenciaCdParaLoja(persistenceEvent);
-		
 		this.naoPodeRetirarNaDoisEDoze(persistenceEvent);
 	}
 	
@@ -24,9 +22,7 @@ public class ValidaOpcoesDeEntrega implements EventoProgramavelJava {
 	
 	public void beforeUpdate(PersistenceEvent persistenceEvent) throws Exception {
 		this.validaOpcaoEntregaFaltante(persistenceEvent);
-		
 		this.validaTransferenciaCdParaLoja(persistenceEvent);
-		
 		this.naoPodeRetirarNaDoisEDoze(persistenceEvent);
 	}
 	
@@ -64,22 +60,31 @@ public class ValidaOpcoesDeEntrega implements EventoProgramavelJava {
 				tipoEntrega = "C";
 			}
 			
-			if ((codEmpDest.compareTo(new BigDecimal(2)) == 0) && tipoEntrega.equals("X")) {
-				exibirErro("Não é possível retirar na empresa 02.");
+			if (codEmpDest.compareTo(new BigDecimal(2)) == 0 && tipoEntrega.equals("X")) {
+				this.exibirErro("Não é possível retirar na empresa 02.");
 			}
-			
+
 			if (codEmpEst.compareTo(new BigDecimal(12)) == 0 && codEmpDest.compareTo(new BigDecimal(4)) == 0 && (tipoEntrega.equals("E") || tipoEntrega.equals("R"))) {
-				exibirErro("Não é possível usar o estoque da empresa 12 para fazer retira ou entrega no CD.");
+				this.exibirErro("Não é possível usar o estoque da empresa 12 para fazer retira ou entrega no CD.");
+			}
+
+			if (codEmp.compareTo(new BigDecimal(12)) == 0 && codEmpDest.compareTo(new BigDecimal(2)) != 0 && codEmpDest.compareTo(new BigDecimal(12)) != 0 && codEmpEst.compareTo(new BigDecimal(4)) != 0 && (tipoEntrega.equals("E") || tipoEntrega.equals("R"))) {
+				this.exibirErro("Não é possível usar o estoque de outras lojas para Entrega ou Retira pelo CD.");
+			}
+
+			if (codEmp.compareTo(new BigDecimal(2)) != 0 && codEmp.compareTo(new BigDecimal(12)) != 0 && codEmpEst.compareTo(new BigDecimal(12)) == 0) {
+				this.exibirErro("Não é possível usar o estoque da loja 12 para vendas realizadas em outras lojas. Exceto vendas na loja 2 ou 12");
 			}
 			
-//			if (codEmp.compareTo(new BigDecimal(12)) == 0 && codEmpEst.compareTo(new BigDecimal(4)) != 0 && (tipoEntrega.equals("E") || tipoEntrega.equals("R"))) {
-//				exibirErro("Não é possível usar o estoque de outras lojas para Entrega ou Retira pelo CD.");
-//			}
-			
-			if ((codEmp.compareTo(new BigDecimal(2)) != 0 && codEmp.compareTo(new BigDecimal(12)) != 0) && codEmpEst.compareTo(new BigDecimal(12)) == 0) {
-				exibirErro("Não é possível usar o estoque da loja 12 para vendas realizadas em outras lojas. Exceto vendas na loja 2 ou 12");
+			if (
+				(codEmp.compareTo(new BigDecimal(2)) == 0 || codEmp.compareTo(new BigDecimal(12)) == 0) 
+				&& tipoEntrega.equals("E") 
+				&& (codEmpEst.compareTo(new BigDecimal(2)) != 0 || codEmpEst.compareTo(new BigDecimal(12)) != 0) 
+				&& codEmpDest.compareTo(new BigDecimal(4)) != 0
+				&& codEmpEst.compareTo(codEmpDest) != 0
+			) {
+				this.exibirErro("Entregas podem ser feitas pela loja 02 ou 12 apenas usando o estoque da loja de destino. 2-2 ou 12-12.");
 			}
-			
 		}
 	}
 	
